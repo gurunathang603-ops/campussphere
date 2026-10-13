@@ -181,6 +181,17 @@ python manage.py collectstatic --noinput
 ```
 The production web server can use WhiteNoise for collected assets; configure `DEBUG=False`, `SECRET_KEY`, `ALLOWED_HOSTS`, and the database in `backend/.env` before deployment.
 
+### Deploying to Render
+
+The repository-root `render.yaml` configures a single Render web service for the Django API and built React frontend, plus a PostgreSQL database. To deploy:
+
+1. Push the repository to GitHub.
+2. In Render, choose **New → Blueprint**, connect the GitHub repository, and select `render.yaml`.
+3. Review the services and create them. Render builds the frontend, collects static files, applies database migrations at startup, and generates a Django `SECRET_KEY`.
+4. Once deployed, open the service's **Shell** and run `cd backend && python manage.py createsuperuser` to create your production administrator.
+
+Do not run `seed_demo` on a public production deployment: it creates accounts with shared demo passwords. The free Render web service and database are intended for testing; confirm current plan limits before using them for real data. Uploaded files are stored in `backend/media`, which is not persistent on the free web service. Configure persistent or external media storage before relying on user uploads.
+
 ---
 
 ## 5. Demo credentials

@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+import dj_database_url
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,7 +30,9 @@ TWILIO_STATUS_CALLBACK_URL = os.getenv("TWILIO_STATUS_CALLBACK_URL", "")
 WEBPUSH_PUBLIC_KEY = os.getenv("WEBPUSH_PUBLIC_KEY", "")
 WEBPUSH_PRIVATE_KEY = os.getenv("WEBPUSH_PRIVATE_KEY", "")
 WEBPUSH_CONTACT = os.getenv("WEBPUSH_CONTACT", "mailto:admin@example.com")
-ALLOWED_HOSTS = ["*"] if DEBUG else env_list("ALLOWED_HOSTS", "localhost,127.0.0.1")
+ALLOWED_HOSTS = ["*"] if DEBUG else env_list(
+    "ALLOWED_HOSTS", os.getenv("RENDER_EXTERNAL_HOSTNAME", "localhost,127.0.0.1")
+)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -80,7 +83,12 @@ AUTH_USER_MODEL = "accounts.User"
 
 # ---- Database (SQLite for dev; switch with DB_ENGINE=postgres|mysql) ----
 _engine = os.getenv("DB_ENGINE", "sqlite").lower()
-if _engine in ("postgres", "postgresql"):
+_database_url = os.getenv("DATABASE_URL")
+if _database_url:
+    DATABASES = {"default": dj_database_url.parse(
+        _database_url, conn_max_age=600, ssl_require=not DEBUG,
+    )}
+elif _engine in ("postgres", "postgresql"):
     DATABASES = {"default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": os.getenv("DB_NAME", "campussphere"), "USER": os.getenv("DB_USER", "postgres"),
@@ -131,8 +139,11 @@ REST_FRAMEWORK = {
         ["rest_framework.renderers.BrowsableAPIRenderer"] if DEBUG else []),
 }
 
-CORS_ALLOWED_ORIGINS = env_list("CORS_ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173")
-CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
+_default_origins = "http://localhost:5173,http://127.0.0.1:5173"
+if os.getenv("RENDER_EXTERNAL_URL"):
+    _default_origins = f"{_default_origins},{os.environ['RENDER_EXTERNAL_URL']}"
+CORS_ALLOWED_ORIGINS = env_list("CORS_ALLOWED_ORIGINS", _default_origins)
+CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS", ",".join(CORS_ALLOWED_ORIGINS))
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
 
@@ -141,6 +152,7 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 40 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 
 if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
