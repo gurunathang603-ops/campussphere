@@ -1,0 +1,6 @@
+/* Minimal inline brand glyphs (avoids lucide-react brand-icon deprecation). */
+const base = { width: 15, height: 15, viewBox: "0 0 24 24", fill: "currentColor" };
+export const Facebook = (p) => <svg {...base} {...p}><path d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.4h-1.2c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7A10 10 0 0 0 22 12" /></svg>;
+export const Instagram = (p) => <svg {...base} {...p}><rect x="2" y="2" width="20" height="20" rx="5" fill="none" stroke="currentColor" strokeWidth="2" /><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" strokeWidth="2" /><circle cx="17.3" cy="6.7" r="1.2" /></svg>;
+export const Linkedin = (p) => <svg {...base} {...p}><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" strokeWidth="0" /><path d="M4 9h3.2v11H4zM5.6 3a1.9 1.9 0 1 1 0 3.8 1.9 1.9 0 0 1 0-3.8M10 9h3v1.6h.04c.4-.8 1.5-1.7 3-1.7 3.3 0 3.9 2.1 3.9 4.9V20H16.8v-5.7c0-1.4 0-3.1-1.9-3.1s-2.2 1.5-2.2 3v5.8H10z" /></svg>;
+export const Youtube = (p) => <svg {...base} {...p}><rect x="2" y="5" width="20" height="14" rx="4" fill="none" stroke="currentColor" strokeWidth="2" /><path d="M10 9.5l6 3-6 3z" /></svg>;

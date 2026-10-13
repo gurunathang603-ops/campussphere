@@ -1,0 +1,18 @@
+{
+  "name": "CampusSphere Department Portal",
+  "short_name": "CampusSphere",
+  "description": "College department events, academics, and notifications.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

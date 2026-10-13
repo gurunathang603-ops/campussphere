@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+html { scroll-behavior: smooth; }
+body { @apply bg-mist text-ink font-body antialiased; }
+h1,h2,h3,h4 { @apply font-display; }
+::selection { background: #E8A33D55; }
+
+.container-page { @apply max-w-content mx-auto px-5 sm:px-8; }
+.btn { @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-medium transition-all duration-200 active:scale-[.97]; }
+.btn-primary { @apply btn bg-gold text-navy-900 hover:bg-gold-600 shadow-card; }
+.btn-outline { @apply btn border border-white/30 text-white hover:bg-white/10; }
+.btn-navy { @apply btn bg-navy text-white hover:bg-navy-600 shadow-card; }
+.card { @apply bg-white rounded-2xl shadow-card border border-black/5; }
+.section { @apply py-16 sm:py-24; }
+.eyebrow { @apply text-sm font-semibold text-indigo tracking-wide; }
+.input { @apply w-full rounded-xl border border-black/10 bg-white px-4 py-3 text-[15px] outline-none focus:ring-2 focus:ring-indigo/40 focus:border-indigo transition; }
+.table-wrap { @apply overflow-x-auto rounded-xl border border-black/10; }
+a { -webkit-tap-highlight-color: transparent; }
