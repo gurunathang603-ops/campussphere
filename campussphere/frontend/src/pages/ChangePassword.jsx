@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff, KeyRound } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -18,6 +18,7 @@ const errorMessage = (error) => {
 export default function ChangePassword() {
   const { user, changePassword } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -31,7 +32,11 @@ export default function ChangePassword() {
     setBusy(true);
     try {
       await changePassword(oldPassword, newPassword, confirmPassword);
-      navigate(DASH[user.role], { replace: true });
+      const requestedPath = location.state?.from;
+      const returnTo = typeof requestedPath === "string" && requestedPath.startsWith("/") && !requestedPath.startsWith("//")
+        ? requestedPath
+        : DASH[user.role];
+      navigate(returnTo, { replace: true });
     } catch (requestError) {
       setError(errorMessage(requestError));
     } finally {

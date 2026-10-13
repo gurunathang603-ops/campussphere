@@ -161,7 +161,7 @@ export default function EventDetail() {
                       {registrationBusy ? "Updating…" : event.is_registered ? "Cancel registration" : "Register as a student"}
                     </button>
                   ) : !user ? (
-                    <Link to="/login" className="btn-navy w-full">Sign in as a student to register</Link>
+                    <Link to="/login" state={{ from: `/events/${id}` }} className="btn-navy w-full">Sign in as a student to register</Link>
                   ) : (
                     <p className="text-xs text-ink/50">Registration is available to student accounts.</p>
                   )}

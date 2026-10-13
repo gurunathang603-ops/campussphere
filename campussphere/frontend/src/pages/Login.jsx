@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { GraduationCap, Briefcase, ShieldCheck, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -23,6 +23,7 @@ export default function Login() {
   const { login } = useAuth();
   const { settings } = useSite();
   const nav = useNavigate();
+  const location = useLocation();
   const active = ROLES.find((r) => r.key === role);
 
   const submit = async (e) => {
@@ -30,7 +31,14 @@ export default function Login() {
     setError(""); setBusy(true);
     try {
       const user = await login(username.trim(), password, role);
-      nav(user.must_change_password ? "/change-password" : DASH[user.role]);
+      const requestedPath = location.state?.from;
+      const returnTo = typeof requestedPath === "string" && requestedPath.startsWith("/") && !requestedPath.startsWith("//")
+        ? requestedPath
+        : DASH[user.role];
+      nav(user.must_change_password ? "/change-password" : returnTo, {
+        replace: true,
+        state: user.must_change_password ? { from: returnTo } : undefined,
+      });
     } catch (err) {
       setError(err?.response?.data?.detail || "Login failed. Please check your credentials.");
     } finally { setBusy(false); }
