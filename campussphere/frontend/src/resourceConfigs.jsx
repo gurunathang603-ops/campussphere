@@ -32,7 +32,6 @@ export const eventFields = [
   { name: "target_user_ids", label: "Selected user IDs (comma separated)", type: "user_ids", help: "Enter account IDs, for example: 12, 18, 25." },
   { name: "is_cancelled", label: "", type: "checkbox", help: "Cancel this event and notify its audience" },
   { name: "schedule_text", label: "Schedule", type: "textarea", rows: 3, help: "One per line: time | title | speaker" },
-  { name: "participants_count", label: "Participants count", type: "number" },
   { name: "participants", label: "Participants / teams", type: "textarea", rows: 2, help: "One per line" },
   { name: "results", label: "Results", type: "textarea", rows: 3 },
   { name: "is_published", label: "", type: "checkbox", help: "Publish immediately", default: true },
@@ -41,6 +40,7 @@ export const eventColumns = [
   { key: "title", label: "Event" },
   { key: "event_type", label: "Type", render: (i) => <span className="text-xs">{i.type_label}</span> },
   { key: "date", label: "Date" },
+  { key: "registered_students_count", label: "Students registered" },
   { key: "venue", label: "Venue" },
 ];
 

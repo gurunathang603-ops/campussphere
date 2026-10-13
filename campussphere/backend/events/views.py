@@ -1,21 +1,35 @@
 from django.core.exceptions import ValidationError as DjangoValidationError
-from django.db.models import Q
+from django.db.models import Count, Exists, OuterRef, Q
 from django.utils import timezone
-from rest_framework.exceptions import ValidationError
+from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from accounts.base import ContentViewSet
+from accounts.models import Student
 
-from .models import Event, EventGallery
+from .models import Event, EventGallery, EventRegistration
 from .serializers import EventGallerySerializer, EventSerializer
 
 
 class EventViewSet(ContentViewSet):
-    queryset = Event.objects.prefetch_related("gallery").all()
+    queryset = Event.objects.prefetch_related("gallery").annotate(
+        registered_students_count=Count("registrations", distinct=True),
+    )
     serializer_class = EventSerializer
     search_fields = ("title", "description", "venue", "organizers", "coordinator")
 
     def get_queryset(self):
         qs, p, today = super().get_queryset(), self.request.query_params, timezone.localdate()
+        user = self.request.user
+        registrations = EventRegistration.objects.filter(event_id=OuterRef("pk"))
+        if user.is_authenticated and user.role == "student":
+            registrations = registrations.filter(student__user_id=user.pk)
+        else:
+            registrations = registrations.none()
+        qs = qs.annotate(is_registered=Exists(registrations))
         if p.get("type"):
             qs = qs.filter(event_type=p["type"])
         if p.get("upcoming"):
@@ -45,6 +59,37 @@ class EventViewSet(ContentViewSet):
     def perform_update(self, serializer):
         serializer.save()
         self._save_gallery(serializer.instance)
+
+    def _student_for_registration(self):
+        if self.request.user.role != "student":
+            raise PermissionDenied("Only students can register for events.")
+        try:
+            return self.request.user.student_profile
+        except Student.DoesNotExist:
+            raise PermissionDenied("A student profile is required to register for events.")
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    def register(self, request, pk=None):
+        event = self.get_object()
+        student = self._student_for_registration()
+        if event.is_cancelled:
+            raise ValidationError({"detail": "This event has been cancelled."})
+        if not event.is_upcoming:
+            raise ValidationError({"detail": "Registration is closed for this event."})
+        _, created = EventRegistration.objects.get_or_create(event=event, student=student)
+        count = EventRegistration.objects.filter(event=event).count()
+        return Response(
+            {"is_registered": True, "registered_students_count": count},
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+        )
+
+    @action(detail=True, methods=["delete"], permission_classes=[IsAuthenticated])
+    def unregister(self, request, pk=None):
+        event = self.get_object()
+        student = self._student_for_registration()
+        EventRegistration.objects.filter(event=event, student=student).delete()
+        count = EventRegistration.objects.filter(event=event).count()
+        return Response({"is_registered": False, "registered_students_count": count})
 
 
 class EventGalleryViewSet(ContentViewSet):

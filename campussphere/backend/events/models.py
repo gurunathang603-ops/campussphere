@@ -95,3 +95,18 @@ class EventGallery(models.Model):
 
     def __str__(self):
         return f"{self.event} image"
+
+
+class EventRegistration(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="registrations")
+    student = models.ForeignKey("accounts.Student", on_delete=models.CASCADE, related_name="event_registrations")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["event", "student"], name="unique_event_student_registration"),
+        ]
+
+    def __str__(self):
+        return f"{self.student} - {self.event}"

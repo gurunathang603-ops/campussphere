@@ -14,6 +14,8 @@ export const mediaUrl = (path) => {
   if (!path) return "";
   const brandingPath = path.match(/\/media\/branding\/([^/?#]+)/);
   if (brandingPath) return `${import.meta.env.BASE_URL}branding/${brandingPath[1]}`;
+  const eventMediaPath = path.match(/\/media\/events\/(?:banners|gallery)\/([^/?#]+)/);
+  if (eventMediaPath) return `${import.meta.env.BASE_URL}event-media/${eventMediaPath[1]}`;
   if (path.startsWith("http")) return path;
   return `${API_BASE}${path}`;
 };

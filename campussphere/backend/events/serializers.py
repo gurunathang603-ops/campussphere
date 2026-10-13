@@ -15,11 +15,13 @@ class EventSerializer(serializers.ModelSerializer):
     documents = serializers.SerializerMethodField()
     type_label = serializers.CharField(source="get_event_type_display", read_only=True)
     is_upcoming = serializers.BooleanField(read_only=True)
+    registered_students_count = serializers.IntegerField(read_only=True)
+    is_registered = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Event
         fields = "__all__"
-        read_only_fields = ["created_by", "department", "created_at"]
+        read_only_fields = ["created_by", "department", "created_at", "participants_count"]
 
     def validate(self, attrs):
         start = attrs.get("date", getattr(self.instance, "date", None))
